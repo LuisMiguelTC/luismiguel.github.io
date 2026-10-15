@@ -3,7 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Homework 1 - Elaborated | Statistics & Cybersecurity</title>
+    <title>Homework 1 - Statistics & Cybersecurity</title>
+    <!-- MathJax per formule matematiche perfette -->
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <style>
         body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; max-width: 950px; margin: 40px auto; padding: 0 20px; line-height: 1.6; color: #333; background-color: #fcfcfc; }
         h1, h2, h3 { color: #0056b3; }
@@ -30,7 +33,7 @@
 
     <div class="card">
         <h2>1. Introduction & Theoretical Foundations</h2>
-        <p>Elliptic-curve scalar multiplication serves as a cornerstone of modern asymmetric cryptography, acting as a cryptographic one-way function. In the forward direction, given a private key $k$ (a scalar integer) and a base generator point $G$, computing the public key $Q = kG$ is efficient and deterministic. Conversely, recovering $k$ from $Q$ relies on the hardness of the <strong>Elliptic Curve Discrete Logarithm Problem (ECDLP)</strong>.</p>
+        <p>Elliptic-curve scalar multiplication serves as a cornerstone of modern asymmetric cryptography, acting as a cryptographic one-way function. In the forward direction, given a private key \(k\) and a base generator point \(G\), computing the public key \(Q = kG\) is efficient and deterministic. Conversely, recovering \(k\) from \(Q\) relies on the hardness of the <strong>Elliptic Curve Discrete Logarithm Problem (ECDLP)</strong>.</p>
         <p>While sharing similarities with cryptographic hash functions (such as one-wayness), ECC is grounded in algebraic geometry over finite fields rather than bitwise mixing operations.</p>
     </div>
 
@@ -38,12 +41,12 @@
         <h2>2. Toy Scheme Specification & Parameters</h2>
         <p>To understand the core mechanisms without the complexity of 256-bit numbers, we implement a simplified toy model:</p>
         <ul>
-            <li><strong>Finite Field Prime ($p$):</strong> $17$</li>
-            <li><strong>Elliptic Curve Equation:</strong> $y^2 \equiv x^3 + 7 \pmod{17}$</li>
-            <li><strong>Base Generator Point ($G$):</strong> $(1, 5)$</li>
-            <li><strong>Private Key ($k$):</strong> $6$</li>
+            <li><strong>Finite Field Prime (\(p\)):</strong> \(17\)</li>
+            <li><strong>Elliptic Curve Equation:</strong> \[y^2 \equiv x^3 + 7 \pmod{17}\]</li>
+            <li><strong>Base Generator Point (\(G\)):</strong> \((1, 5)\)</li>
+            <li><strong>Private Key (\(k\)):</strong> \(6\)</li>
         </ul>
-        <p>The objective is to compute successive point additions ($G, 2G, 3G, \dots, kG$) to derive the final public key point $Q = 6G$.</p>
+        <p>The objective is to compute successive point additions (\(G, 2G, 3G, \dots, kG\)) to derive the final public key point \(Q = 6G\).</p>
     </div>
 
     <div class="card">
@@ -63,10 +66,8 @@
         
     if P == Q:
         if y1 == 0: return None
-        # Point Doubling formula: lambda = (3*x1^2 + a) * (2*y1)^(-1) mod p
         lam = (3 * x1 * x1 + a) * pow(2 * y1, p - 2, p) % p
     else:
-        # Point Addition formula: lambda = (y2 - y1) * (x2 - x1)^(-1) mod p
         dx = (x2 - x1) % p
         dy = (y2 - y1) % p
         lam = dy * pow(dx, p - 2, p) % p
@@ -86,7 +87,6 @@ def scalar_mult(k, G, p=17, a=0):
         k >>= 1
     return R
 
-# Parameters test
 G = (1, 5)
 k = 6
 Q = scalar_mult(k, G)
@@ -96,7 +96,7 @@ print(f"Toy Public Key (6G): {Q}")
 
     <div class="card">
         <h2>4. Statistical Exploration & Discussion</h2>
-        <p>By executing scalar multiplication across various values of $k$ and exploring the resulting points on the curve, we evaluate several statistical dimensions:</p>
+        <p>By executing scalar multiplication across various values of \(k\) and exploring the resulting points on the curve, we evaluate several statistical dimensions:</p>
         <table>
             <tr>
                 <th>Statistical Property</th>
@@ -105,13 +105,13 @@ print(f"Toy Public Key (6G): {Q}")
             </tr>
             <tr>
                 <td><strong>Coordinate Distribution</strong></td>
-                <td>Points are strictly bound to valid curve coordinates over $\mathbb{F}_{17}$.</td>
-                <td>Hash functions produce uniformly distributed pseudo-random bitstrings across the output space.</td>
+                <td>Points are strictly bound to valid curve coordinates over \(\mathbb{F}_{17}\).</td>
+                <td>Hash functions produce uniformly distributed pseudo-random bitstrings across output spaces.</td>
             </tr>
             <tr>
                 <td><strong>Avalanche Effect</strong></td>
-                <td>Slight changes in scalar $k$ result in geometric group transitions rather than random bit flips.</td>
-                <td>Strict avalanche criterion is mandatory: a 1-bit change in input alters ~50% of output bits.</td>
+                <td>Slight changes in scalar \(k\) result in geometric group transitions rather than random bit flips.</td>
+                <td>Strict avalanche criterion is mandatory: a 1-bit change alters ~50% of output bits.</td>
             </tr>
             <tr>
                 <td><strong>Input-Output Correlation</strong></td>
@@ -119,7 +119,6 @@ print(f"Toy Public Key (6G): {Q}")
                 <td>Zero correlation (unpredictable output independent of input).</td>
             </tr>
         </table>
-        <p><strong>Conclusion:</strong> Properties like the avalanche effect and bit-level pseudo-randomness are specific to cryptographic hash functions (like Keccak or SHA-2), whereas ECC properties are fundamentally governed by algebraic structure, discrete logarithms, and geometric point cycles.</p>
     </div>
 
 </body>
