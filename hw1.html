@@ -3,54 +3,123 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Homework 1 - Statistics & Cybersecurity</title>
+    <title>Homework 1 - Elaborated | Statistics & Cybersecurity</title>
     <style>
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; max-width: 900px; margin: 40px auto; padding: 0 20px; line-height: 1.6; color: #333; background-color: #fcfcfc; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; max-width: 950px; margin: 40px auto; padding: 0 20px; line-height: 1.6; color: #333; background-color: #fcfcfc; }
         h1, h2, h3 { color: #0056b3; }
         h1 { border-bottom: 2px solid #eaeaea; padding-bottom: 10px; }
         h2 { margin-top: 40px; border-bottom: 1px solid #eaeaea; padding-bottom: 5px; }
         pre { background: #2d2d2d; color: #f8f8f2; padding: 15px; border-radius: 6px; overflow-x: auto; font-family: Consolas, Monaco, monospace; font-size: 14px; }
         code { font-family: Consolas, Monaco, monospace; background: #f0f0f0; padding: 2px 5px; border-radius: 4px; font-size: 13px; }
         pre code { background: none; padding: 0; color: inherit; }
-        ul { margin-bottom: 20px; }
+        ul, ol { margin-bottom: 20px; }
         .nav-back { margin-bottom: 20px; display: inline-block; font-weight: bold; color: #0056b3; text-decoration: none; }
         .nav-back:hover { text-decoration: underline; }
-        .card { background: #fff; padding: 20px; margin-bottom: 25px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); border: 1px solid #eaeaea; }
+        .card { background: #fff; padding: 25px; margin-bottom: 25px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); border: 1px solid #eaeaea; }
+        table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
+        th { background-color: #f4f4f4; }
     </style>
 </head>
 <body>
 
     <a href="index.html" class="nav-back">&larr; Back to Home</a>
 
-    <h1>Homework 1: Public-Key Cryptography (Private Key to Public Key in Ethereum)</h1>
+    <h1>Homework 1: Public-Key Cryptography (Private to Public Key in Ethereum)</h1>
     <p><strong>Course:</strong> Statistics for Cybersecurity | La Sapienza University of Rome</p>
 
     <div class="card">
-        <h2>1. Objective & Background</h2>
-        <p>Elliptic-curve scalar multiplication can be viewed as a cryptographic one-way function. It is deterministic and easy to compute in the forward direction ($k \to Q = kG$), while recovering $k$ from $Q$ is computationally difficult based on the Elliptic Curve Discrete Logarithm Problem (ECDLP).</p>
-        <p>The goal is to understand the basic mechanics of elliptic-curve scalar multiplication using a toy model rather than implementing a full cryptographic system.</p>
+        <h2>1. Introduction & Theoretical Foundations</h2>
+        <p>Elliptic-curve scalar multiplication serves as a cornerstone of modern asymmetric cryptography, acting as a cryptographic one-way function. In the forward direction, given a private key $k$ (a scalar integer) and a base generator point $G$, computing the public key $Q = kG$ is efficient and deterministic. Conversely, recovering $k$ from $Q$ relies on the hardness of the <strong>Elliptic Curve Discrete Logarithm Problem (ECDLP)</strong>.</p>
+        <p>While sharing similarities with cryptographic hash functions (such as one-wayness), ECC is grounded in algebraic geometry over finite fields rather than bitwise mixing operations.</p>
     </div>
 
     <div class="card">
-        <h2>2. Toy Scheme Implementation</h2>
-        <p>For this experiment, we use the following parameters:</p>
+        <h2>2. Toy Scheme Specification & Parameters</h2>
+        <p>To understand the core mechanisms without the complexity of 256-bit numbers, we implement a simplified toy model:</p>
         <ul>
-            <li><strong>Toy Curve:</strong> $$y^2 \equiv x^3 + 7 \pmod{17}$$</li>
-            <li><strong>Base Point ($G$):</strong> $(1, 5)$</li>
+            <li><strong>Finite Field Prime ($p$):</strong> $17$</li>
+            <li><strong>Elliptic Curve Equation:</strong> $y^2 \equiv x^3 + 7 \pmod{17}$</li>
+            <li><strong>Base Generator Point ($G$):</strong> $(1, 5)$</li>
             <li><strong>Private Key ($k$):</strong> $6$</li>
         </ul>
-        <p>The public key is computed as $Q = kG$ by implementing basic point-addition operations to generate $G, 2G, 3G, \dots, kG$.</p>
+        <p>The objective is to compute successive point additions ($G, 2G, 3G, \dots, kG$) to derive the final public key point $Q = 6G$.</p>
     </div>
 
     <div class="card">
-        <h2>3. Statistical Exploration</h2>
-        <p>By repeating the experiment with different values of $k$ and valid base points, we analyze simple statistical properties:</p>
-        <ul>
-            <li><strong>Distribution of coordinates:</strong> Examining the dispersion of $x$ and $y$ coordinates across the finite field.</li>
-            <li><strong>Frequency & Uniformity:</strong> Checking individual value occurrences and apparent uniformity.</li>
-            <li><strong>Correlations & Avalanche behavior:</strong> Evaluating relationships between inputs and outputs.</li>
-        </ul>
-        <p><em>Discussion:</em> While cryptographic hash functions aim for strict avalanche effects and uniform bit-diffusion, algebraic structures like ECC preserve strict geometric group properties, meaning certain correlations stem directly from the underlying mathematical curve equation.</p>
+        <h2>3. Python Implementation of Point Operations</h2>
+        <p>Below is a Python implementation showing how point addition, point doubling, and scalar multiplication operate under modular arithmetic for the toy curve:</p>
+        
+        <pre><code>def point_add(P, Q, p=17, a=0):
+    """Computes R = P + Q on y^2 = x^3 + a*x + b (mod p)"""
+    if P is None: return Q
+    if Q is None: return P
+    
+    x1, y1 = P
+    x2, y2 = Q
+    
+    if x1 == x2 and y1 != y2:
+        return None # Point at infinity
+        
+    if P == Q:
+        if y1 == 0: return None
+        # Point Doubling formula: lambda = (3*x1^2 + a) * (2*y1)^(-1) mod p
+        lam = (3 * x1 * x1 + a) * pow(2 * y1, p - 2, p) % p
+    else:
+        # Point Addition formula: lambda = (y2 - y1) * (x2 - x1)^(-1) mod p
+        dx = (x2 - x1) % p
+        dy = (y2 - y1) % p
+        lam = dy * pow(dx, p - 2, p) % p
+        
+    x3 = (lam * lam - x1 - x2) % p
+    y3 = (lam * (x1 - x3) - y1) % p
+    return (x3, y3)
+
+def scalar_mult(k, G, p=17, a=0):
+    """Computes Q = k * G using double-and-add algorithm"""
+    R = None
+    curr = G
+    while k > 0:
+        if k & 1:
+            R = point_add(R, curr, p, a)
+        curr = point_add(curr, curr, p, a)
+        k >>= 1
+    return R
+
+# Parameters test
+G = (1, 5)
+k = 6
+Q = scalar_mult(k, G)
+print(f"Toy Public Key (6G): {Q}")
+        </code></pre>
+    </div>
+
+    <div class="card">
+        <h2>4. Statistical Exploration & Discussion</h2>
+        <p>By executing scalar multiplication across various values of $k$ and exploring the resulting points on the curve, we evaluate several statistical dimensions:</p>
+        <table>
+            <tr>
+                <th>Statistical Property</th>
+                <th>Observation on Toy ECC</th>
+                <th>Comparison with Hash Functions</th>
+            </tr>
+            <tr>
+                <td><strong>Coordinate Distribution</strong></td>
+                <td>Points are strictly bound to valid curve coordinates over $\mathbb{F}_{17}$.</td>
+                <td>Hash functions produce uniformly distributed pseudo-random bitstrings across the output space.</td>
+            </tr>
+            <tr>
+                <td><strong>Avalanche Effect</strong></td>
+                <td>Slight changes in scalar $k$ result in geometric group transitions rather than random bit flips.</td>
+                <td>Strict avalanche criterion is mandatory: a 1-bit change in input alters ~50% of output bits.</td>
+            </tr>
+            <tr>
+                <td><strong>Input-Output Correlation</strong></td>
+                <td>Strong structural correlation due to underlying algebraic group laws.</td>
+                <td>Zero correlation (unpredictable output independent of input).</td>
+            </tr>
+        </table>
+        <p><strong>Conclusion:</strong> Properties like the avalanche effect and bit-level pseudo-randomness are specific to cryptographic hash functions (like Keccak or SHA-2), whereas ECC properties are fundamentally governed by algebraic structure, discrete logarithms, and geometric point cycles.</p>
     </div>
 
 </body>
