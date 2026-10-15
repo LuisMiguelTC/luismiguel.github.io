@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Homework 1 - Statistics & Cybersecurity</title>
+    <title>Homework 1 - Interactive ECC Lab | Statistics & Cybersecurity</title>
     <style>
         body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; max-width: 950px; margin: 40px auto; padding: 0 20px; line-height: 1.6; color: #333; background-color: #fcfcfc; }
         h1, h2, h3 { color: #0056b3; }
@@ -13,6 +13,11 @@
         code { font-family: Consolas, Monaco, monospace; background: #f0f0f0; padding: 2px 6px; border-radius: 4px; font-size: 13px; color: #d63384; }
         pre code { background: none; padding: 0; color: inherit; }
         .math-block { background: #f8f9fa; border-left: 4px solid #0056b3; padding: 15px; margin: 20px 0; font-family: Consolas, Monaco, monospace; font-size: 16px; font-weight: bold; color: #222; border-radius: 0 6px 6px 0; }
+        input, button { padding: 10px; font-size: 15px; border: 1px solid #ccc; border-radius: 4px; }
+        button { background-color: #0056b3; color: white; border: none; cursor: pointer; font-weight: bold; }
+        button:hover { background-color: #004085; }
+        .steps-box { background: #f1f3f5; padding: 15px; border-radius: 6px; font-family: monospace; font-size: 15px; margin-top: 15px; line-height: 1.8; }
+        .result-box { background: #e7f1ff; border: 1px solid #b6d4fe; padding: 15px; border-radius: 6px; text-align: center; font-size: 18px; font-weight: bold; color: #084298; margin-top: 15px; }
         ul, ol { margin-bottom: 20px; }
         .nav-back { margin-bottom: 20px; display: inline-block; font-weight: bold; color: #0056b3; text-decoration: none; }
         .nav-back:hover { text-decoration: underline; }
@@ -29,97 +34,120 @@
     <h1>Homework 1: Public-Key Cryptography (Private to Public Key in Ethereum)</h1>
     <p><strong>Course:</strong> Statistics for Cybersecurity | La Sapienza University of Rome</p>
 
+    <!-- CALCOLATORE INTERATTIVO -->
+    <div class="card">
+        <h2>Interactive Calculator</h2>
+        <p>Explore how a private key generates a public point using the toy curve parameters:</p>
+        <p>Curve: <code>y² ≡ x³ + 7 (mod 17)</code><br>Base point: <code>G = (1, 5)</code></p>
+        
+        <div style="margin: 20px 0;">
+            <label for="privateKey"><strong>Private key (k):</strong></label>
+            <input type="number" id="privateKey" value="6" min="1" max="30" style="width: 80px; margin-left: 10px;">
+            <button onclick="calculateECC()" style="margin-left: 10px;">Calculate kG</button>
+        </div>
+
+        <h3>Calculation Steps</h3>
+        <div id="calcSteps" class="steps-box">
+            <!-- I passaggi verranno inseriti qui da JavaScript -->
+        </div>
+
+        <div id="calcResult" class="result-box">
+            <!-- Il risultato Q apparirà qui -->
+        </div>
+    </div>
+
     <div class="card">
         <h2>1. Introduction & Theoretical Foundations</h2>
         <p>Elliptic-curve scalar multiplication serves as a cornerstone of modern asymmetric cryptography, acting as a cryptographic one-way function. In the forward direction, given a private key <code>k</code> and a base generator point <code>G</code>, computing the public key <code>Q = k · G</code> is efficient and deterministic. Conversely, recovering <code>k</code> from <code>Q</code> relies on the hardness of the <strong>Elliptic Curve Discrete Logarithm Problem (ECDLP)</strong>.</p>
-        <p>While sharing similarities with cryptographic hash functions (such as one-wayness), ECC is grounded in algebraic geometry over finite fields rather than bitwise mixing operations.</p>
     </div>
 
     <div class="card">
         <h2>2. Toy Scheme Specification & Parameters</h2>
-        <p>To understand the core mechanisms without the complexity of 256-bit numbers, we implement a simplified toy model:</p>
         <ul>
             <li><strong>Finite Field Prime (p):</strong> <code>17</code></li>
             <li><strong>Elliptic Curve Equation:</strong>
                 <div class="math-block">y² ≡ x³ + 7 (mod 17)</div>
             </li>
             <li><strong>Base Generator Point (G):</strong> <code>(1, 5)</code></li>
-            <li><strong>Private Key (k):</strong> <code>6</code></li>
         </ul>
-        <p>The objective is to compute successive point additions (<code>G, 2G, 3G, ..., kG</code>) to derive the final public key point <code>Q = 6G</code>.</p>
     </div>
 
-    <div class="card">
-        <h2>3. Python Implementation of Point Operations</h2>
-        <p>Below is a Python implementation showing how point addition, point doubling, and scalar multiplication operate under modular arithmetic for the toy curve:</p>
-        
-        <pre><code>def point_add(P, Q, p=17, a=0):
-    """Computes R = P + Q on y^2 = x^3 + a*x + b (mod p)"""
-    if P is None: return Q
-    if Q is None: return P
-    
-    x1, y1 = P
-    x2, y2 = Q
-    
-    if x1 == x2 and y1 != y2:
-        return None # Point at infinity
-        
-    if P == Q:
-        if y1 == 0: return None
-        lam = (3 * x1 * x1 + a) * pow(2 * y1, p - 2, p) % p
-    else:
-        dx = (x2 - x1) % p
-        dy = (y2 - y1) % p
-        lam = dy * pow(dx, p - 2, p) % p
-        
-    x3 = (lam * lam - x1 - x2) % p
-    y3 = (lam * (x1 - x3) - y1) % p
-    return (x3, y3)
+    <!-- SCRIPT JAVASCRIPT PER IL CALCOLO INTERATTIVO -->
+    <script>
+        const p = 17;
+        const a = 0;
 
-def scalar_mult(k, G, p=17, a=0):
-    """Computes Q = k * G using double-and-add algorithm"""
-    R = None
-    curr = G
-    while k > 0:
-        if k & 1:
-            R = point_add(R, curr, p, a)
-        curr = point_add(curr, curr, p, a)
-        k >>= 1
-    return R
+        function modInverse(n, m) {
+            n = (n % m + m) % m;
+            for (let x = 1; x < m; x++) {
+                if ((n * x) % m === 1) return x;
+            }
+            return 1;
+        }
 
-G = (1, 5)
-k = 6
-Q = scalar_mult(k, G)
-print(f"Toy Public Key (6G): {Q}")
-        </code></pre>
-    </div>
+        function pointAdd(P, Q) {
+            if (!P) return Q;
+            if (!Q) return P;
 
-    <div class="card">
-        <h2>4. Statistical Exploration & Discussion</h2>
-        <p>By executing scalar multiplication across various values of <code>k</code> and exploring the resulting points on the curve, we evaluate several statistical dimensions:</p>
-        <table>
-            <tr>
-                <th>Statistical Property</th>
-                <th>Observation on Toy ECC</th>
-                <th>Comparison with Hash Functions</th>
-            </tr>
-            <tr>
-                <td><strong>Coordinate Distribution</strong></td>
-                <td>Points are strictly bound to valid curve coordinates over 𝔽₁₇.</td>
-                <td>Hash functions produce uniformly distributed pseudo-random bitstrings across output spaces.</td>
-            </tr>
-            <tr>
-                <td><strong>Avalanche Effect</strong></td>
-                <td>Slight changes in scalar <code>k</code> result in geometric group transitions rather than random bit flips.</td>
-                <td>Strict avalanche criterion is mandatory: a 1-bit change alters ~50% of output bits.</td>
-            </tr>
-            <tr>
-                <td><strong>Input-Output Correlation</strong></td>
-                <td>Strong structural correlation due to underlying algebraic group laws.</td>
-                <td>Zero correlation (unpredictable output independent of input).</td>
-            </tr>
-        </table>
-    </div>
+            let [x1, y1] = P;
+            let [x2, y2] = Q;
+
+            if (x1 === x2 && y1 !== y2) return null;
+
+            let lam;
+            if (P[0] === Q[0] && P[1] === Q[1]) {
+                if (y1 === 0) return null;
+                let num = (3 * x1 * x1 + a) % p;
+                let den = modInverse(2 * y1, p);
+                lam = (num * den) % p;
+            } else {
+                let num = (y2 - y1) % p;
+                let den = modInverse(x2 - x1, p);
+                lam = (num * den) % p;
+            }
+
+            let x3 = (lam * lam - x1 - x2) % p;
+            if (x3 < 0) x3 += p;
+            let y3 = (lam * (x1 - x3) - y1) % p;
+            if (y3 < 0) y3 += p;
+
+            return [x3, y3];
+        }
+
+        function calculateECC() {
+            let k = parseInt(document.getElementById('privateKey').value) || 1;
+            let G = [1, 5];
+            let current = G;
+            let stepsHtml = "";
+            
+            if (k < 1) k = 1;
+
+            for (let i = 1; i <= k; i++) {
+                if (i === 1) {
+                    current = G;
+                } else {
+                    current = pointAdd(current, G);
+                }
+                
+                if (!current) {
+                    stepsHtml += `${i}G = Point at Infinity<br>`;
+                    break;
+                } else {
+                    stepsHtml += `${i}G = (${current[0]}, ${current[1])}<br>`;
+                }
+            }
+
+            document.getElementById('calcSteps').innerHTML = stepsHtml;
+            if (current) {
+                document.getElementById('calcResult').innerHTML = `Q = (${current[0]}, ${current[1]})`;
+            } else {
+                document.getElementById('calcResult').innerHTML = `Q = Point at Infinity`;
+            }
+        }
+
+        // Esegui al caricamento iniziale
+        calculateECC();
+    </script>
 
 </body>
 </html>
