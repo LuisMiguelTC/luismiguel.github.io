@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Homework 1 - Statistics & Cybersecurity</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; max-width: 900px; margin: 40px auto; padding: 0 20px; line-height: 1.6; color: #333; background-color: #fcfcfc; }
+        h1, h2, h3 { color: #0056b3; }
+        h1 { border-bottom: 2px solid #eaeaea; padding-bottom: 10px; }
+        h2 { margin-top: 40px; border-bottom: 1px solid #eaeaea; padding-bottom: 5px; }
+        pre { background: #2d2d2d; color: #f8f8f2; padding: 15px; border-radius: 6px; overflow-x: auto; font-family: Consolas, Monaco, monospace; font-size: 14px; }
+        code { font-family: Consolas, Monaco, monospace; background: #f0f0f0; padding: 2px 5px; border-radius: 4px; font-size: 13px; }
+        pre code { background: none; padding: 0; color: inherit; }
+        ul { margin-bottom: 20px; }
+        .nav-back { margin-bottom: 20px; display: inline-block; font-weight: bold; color: #0056b3; text-decoration: none; }
+        .nav-back:hover { text-decoration: underline; }
+        .card { background: #fff; padding: 20px; margin-bottom: 25px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); border: 1px solid #eaeaea; }
+    </style>
+</head>
+<body>
+
+    <a href="index.html" class="nav-back">&larr; Back to Home</a>
+
+    <h1>Homework 1: Public-Key Cryptography (Private Key to Public Key in Ethereum)</h1>
+    <p><strong>Course:</strong> Statistics for Cybersecurity | La Sapienza University of Rome</p>
+
+    <div class="card">
+        <h2>1. Objective & Background</h2>
+        <p>Elliptic-curve scalar multiplication can be viewed as a cryptographic one-way function. It is deterministic and easy to compute in the forward direction ($k \to Q = kG$), while recovering $k$ from $Q$ is computationally difficult based on the Elliptic Curve Discrete Logarithm Problem (ECDLP).</p>
+        <p>The goal is to understand the basic mechanics of elliptic-curve scalar multiplication using a toy model rather than implementing a full cryptographic system.</p>
+    </div>
+
+    <div class="card">
+        <h2>2. Toy Scheme Implementation</h2>
+        <p>For this experiment, we use the following parameters:</p>
+        <ul>
+            <li><strong>Toy Curve:</strong> $$y^2 \equiv x^3 + 7 \pmod{17}$$</li>
+            <li><strong>Base Point ($G$):</strong> $(1, 5)$</li>
+            <li><strong>Private Key ($k$):</strong> $6$</li>
+        </ul>
+        <p>The public key is computed as $Q = kG$ by implementing basic point-addition operations to generate $G, 2G, 3G, \dots, kG$.</p>
+    </div>
+
+    <div class="card">
+        <h2>3. Statistical Exploration</h2>
+        <p>By repeating the experiment with different values of $k$ and valid base points, we analyze simple statistical properties:</p>
+        <ul>
+            <li><strong>Distribution of coordinates:</strong> Examining the dispersion of $x$ and $y$ coordinates across the finite field.</li>
+            <li><strong>Frequency & Uniformity:</strong> Checking individual value occurrences and apparent uniformity.</li>
+            <li><strong>Correlations & Avalanche behavior:</strong> Evaluating relationships between inputs and outputs.</li>
+        </ul>
+        <p><em>Discussion:</em> While cryptographic hash functions aim for strict avalanche effects and uniform bit-diffusion, algebraic structures like ECC preserve strict geometric group properties, meaning certain correlations stem directly from the underlying mathematical curve equation.</p>
+    </div>
+
+</body>
+</html>
