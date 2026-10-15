@@ -12,11 +12,11 @@
         pre { background: #2d2d2d; color: #f8f8f2; padding: 15px; border-radius: 6px; overflow-x: auto; font-family: Consolas, Monaco, monospace; font-size: 14px; }
         code { font-family: Consolas, Monaco, monospace; background: #f0f0f0; padding: 2px 6px; border-radius: 4px; font-size: 13px; color: #d63384; }
         pre code { background: none; padding: 0; color: inherit; }
-        .math-block { background: #f8f9fa; border-left: 4px solid #0056b3; padding: 15px; margin: 20px 0; font-family: Consolas, Monaco, monospace; font-size: 16px; font-weight: bold; color: #222; border-radius: 0 6px 6px 0; }
-        input, button { padding: 10px; font-size: 15px; border: 1px solid #ccc; border-radius: 4px; }
+        .math-block { background: #f8f9fa; border-left: 4px solid #0056b3; padding: 15px; margin: 15px 0; font-family: Consolas, Monaco, monospace; font-size: 16px; font-weight: bold; color: #222; border-radius: 0 6px 6px 0; }
+        input, button { padding: 8px 12px; font-size: 14px; border: 1px solid #ccc; border-radius: 4px; }
         button { background-color: #0056b3; color: white; border: none; cursor: pointer; font-weight: bold; }
         button:hover { background-color: #004085; }
-        .steps-box { background: #f1f3f5; padding: 15px; border-radius: 6px; font-family: monospace; font-size: 15px; margin-top: 15px; line-height: 1.8; }
+        .steps-box { background: #f1f3f5; padding: 15px; border-radius: 6px; font-family: monospace; font-size: 15px; margin-top: 15px; line-height: 1.8; max-height: 250px; overflow-y: auto; }
         .result-box { background: #e7f1ff; border: 1px solid #b6d4fe; padding: 15px; border-radius: 6px; text-align: center; font-size: 18px; font-weight: bold; color: #084298; margin-top: 15px; }
         ul, ol { margin-bottom: 20px; }
         .nav-back { margin-bottom: 20px; display: inline-block; font-weight: bold; color: #0056b3; text-decoration: none; }
@@ -25,6 +25,8 @@
         table { width: 100%; border-collapse: collapse; margin: 20px 0; }
         th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
         th { background-color: #f4f4f4; }
+        .param-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin: 15px 0; }
+        .param-item { background: #f8f9fa; padding: 12px; border-radius: 6px; border: 1px solid #e9ecef; }
     </style>
 </head>
 <body>
@@ -34,26 +36,38 @@
     <h1>Homework 1: Public-Key Cryptography (Private to Public Key in Ethereum)</h1>
     <p><strong>Course:</strong> Statistics for Cybersecurity | La Sapienza University of Rome</p>
 
-    <!-- CALCOLATORE INTERATTIVO -->
+    <!-- SEZIONE 2 INTERATTIVA: SPECIFICATION & PARAMETERS -->
     <div class="card">
-        <h2>Interactive Calculator</h2>
-        <p>Explore how a private key generates a public point using the toy curve parameters:</p>
-        <p>Curve: <code>y² ≡ x³ + 7 (mod 17)</code><br>Base point: <code>G = (1, 5)</code></p>
+        <h2>2. Toy Scheme Specification & Parameters (Interactive Model)</h2>
+        <p>To understand the core mechanisms without the complexity of 256-bit numbers, we implement a simplified toy model. You can test and modify the parameters below:</p>
         
-        <div style="margin: 20px 0;">
-            <label for="privateKey"><strong>Private key (k):</strong></label>
-            <input type="number" id="privateKey" value="6" min="1" max="30" style="width: 80px; margin-left: 10px;">
-            <button onclick="calculateECC()" style="margin-left: 10px;">Calculate kG</button>
+        <div class="param-grid">
+            <div class="param-item">
+                <label><strong>Finite Field Prime (p):</strong></label><br>
+                <input type="number" id="primeP" value="17" style="width: 100%; margin-top: 5px;" readonly>
+            </div>
+            <div class="param-item">
+                <label><strong>Base Point G (x, y):</strong></label><br>
+                <input type="text" id="basePoint" value="1, 5" style="width: 100%; margin-top: 5px;">
+            </div>
+            <div class="param-item">
+                <label><strong>Private Key (k):</strong></label><br>
+                <input type="number" id="interactiveK" value="6" min="1" max="50" style="width: 100%; margin-top: 5px;">
+            </div>
+        </div>
+        
+        <button onclick="runInteractiveToy()" style="margin-top: 10px;">Run Toy Scheme Simulation</button>
+
+        <div class="math-block">
+            Curve: y² ≡ x³ + 7 (mod <span id="lblP">17</span>)<br>
+            Base Point G = (<span id="lblG">1, 5</span>)
         </div>
 
-        <h3>Calculation Steps</h3>
-        <div id="calcSteps" class="steps-box">
-            <!-- I passaggi verranno inseriti qui da JavaScript -->
-        </div>
+        <p>The objective is to compute successive point additions (<code>G, 2G, 3G, ..., kG</code>) to derive the final public key point <code>Q = kG</code>.</p>
 
-        <div id="calcResult" class="result-box">
-            <!-- Il risultato Q apparirà qui -->
-        </div>
+        <h3>Generated Sequence & Public Key</h3>
+        <div id="interactiveSteps" class="steps-box"></div>
+        <div id="interactiveResult" class="result-box"></div>
     </div>
 
     <div class="card">
@@ -61,20 +75,8 @@
         <p>Elliptic-curve scalar multiplication serves as a cornerstone of modern asymmetric cryptography, acting as a cryptographic one-way function. In the forward direction, given a private key <code>k</code> and a base generator point <code>G</code>, computing the public key <code>Q = k · G</code> is efficient and deterministic. Conversely, recovering <code>k</code> from <code>Q</code> relies on the hardness of the <strong>Elliptic Curve Discrete Logarithm Problem (ECDLP)</strong>.</p>
     </div>
 
-    <div class="card">
-        <h2>2. Toy Scheme Specification & Parameters</h2>
-        <ul>
-            <li><strong>Finite Field Prime (p):</strong> <code>17</code></li>
-            <li><strong>Elliptic Curve Equation:</strong>
-                <div class="math-block">y² ≡ x³ + 7 (mod 17)</div>
-            </li>
-            <li><strong>Base Generator Point (G):</strong> <code>(1, 5)</code></li>
-        </ul>
-    </div>
-
-    <!-- SCRIPT JAVASCRIPT PER IL CALCOLO INTERATTIVO -->
+    <!-- SCRIPT JAVASCRIPT PER ENTRAMBI I MODELLI -->
     <script>
-        const p = 17;
         const a = 0;
 
         function modInverse(n, m) {
@@ -85,7 +87,7 @@
             return 1;
         }
 
-        function pointAdd(P, Q) {
+        function pointAdd(P, Q, p) {
             if (!P) return Q;
             if (!Q) return P;
 
@@ -114,39 +116,38 @@
             return [x3, y3];
         }
 
-        function calculateECC() {
-            let k = parseInt(document.getElementById('privateKey').value) || 1;
-            let G = [1, 5];
-            let current = G;
+        function runInteractiveToy() {
+            let p = parseInt(document.getElementById('primeP').value) || 17;
+            let k = parseInt(document.getElementById('interactiveK').value) || 6;
+            let gInput = document.getElementById('basePoint').value.split(',').map(n => parseInt(n.trim()));
+            let G = (gInput.length === 2 && !isNaN(gInput[0]) && !isNaN(gInput[1])) ? gInput : [1, 5];
+
+            document.getElementById('lblP').innerText = p;
+            document.getElementById('lblG').innerText = G[0] + ", " + G[1];
+
+            let current = null;
             let stepsHtml = "";
-            
-            if (k < 1) k = 1;
 
             for (let i = 1; i <= k; i++) {
-                if (i === 1) {
-                    current = G;
-                } else {
-                    current = pointAdd(current, G);
-                }
-                
+                current = pointAdd(current, G, p);
                 if (!current) {
                     stepsHtml += `${i}G = Point at Infinity<br>`;
                     break;
                 } else {
-                    stepsHtml += `${i}G = (${current[0]}, ${current[1])}<br>`;
+                    stepsHtml += `${i}G = (${current[0]}, ${current[1]})<br>`;
                 }
             }
 
-            document.getElementById('calcSteps').innerHTML = stepsHtml;
+            document.getElementById('interactiveSteps').innerHTML = stepsHtml;
             if (current) {
-                document.getElementById('calcResult').innerHTML = `Q = (${current[0]}, ${current[1]})`;
+                document.getElementById('interactiveResult').innerHTML = `TOY PUBLIC KEY (Q = ${k}G) = (${current[0]}, ${current[1]})`;
             } else {
-                document.getElementById('calcResult').innerHTML = `Q = Point at Infinity`;
+                document.getElementById('interactiveResult').innerHTML = `TOY PUBLIC KEY (Q = ${k}G) = Point at Infinity`;
             }
         }
 
-        // Esegui al caricamento iniziale
-        calculateECC();
+        // Esegui al caricamento
+        runInteractiveToy();
     </script>
 
 </body>
