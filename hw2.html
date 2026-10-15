@@ -3,139 +3,85 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Homework 2 - Statistics & Cybersecurity</title>
+    <title>Homework 2 - Interactive & Statistics</title>
     <style>
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; max-width: 900px; margin: 40px auto; padding: 0 20px; line-height: 1.6; color: #333; background-color: #fcfcfc; }
-        h1, h2, h3 { color: #0056b3; }
-        h1 { border-bottom: 2px solid #eaeaea; padding-bottom: 10px; }
-        h2 { margin-top: 40px; border-bottom: 1px solid #eaeaea; padding-bottom: 5px; }
-        pre { background: #2d2d2d; color: #f8f8f2; padding: 15px; border-radius: 6px; overflow-x: auto; font-family: Consolas, Monaco, monospace; font-size: 14px; }
-        code { font-family: Consolas, Monaco, monospace; background: #f0f0f0; padding: 2px 5px; border-radius: 4px; font-size: 13px; }
-        pre code { background: none; padding: 0; color: inherit; }
-        ul { margin-bottom: 20px; }
-        .nav-back { margin-bottom: 20px; display: inline-block; font-weight: bold; color: #0056b3; text-decoration: none; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; max-width: 900px; margin: 40px auto; padding: 0 20px; line-height: 1.6; color: #333; background-color: #f4f6f9; }
+        h1, h2 { color: #0056b3; }
+        h1 { border-bottom: 2px solid #ddd; padding-bottom: 10px; }
+        .card { background: #fff; padding: 20px; margin-bottom: 25px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+        input, select, button { padding: 10px; margin: 5px 0; font-size: 14px; border: 1px solid #ccc; border-radius: 4px; }
+        button { background-color: #0056b3; color: white; border: none; cursor: pointer; font-weight: bold; }
+        button:hover { background-color: #004085; }
+        .output { background: #e9ecef; padding: 12px; border-radius: 4px; margin-top: 10px; font-family: monospace; font-weight: bold; }
+        .nav-back { display: inline-block; margin-bottom: 20px; font-weight: bold; color: #0056b3; text-decoration: none; }
         .nav-back:hover { text-decoration: underline; }
-        table { width: 100%; border-collapse: collapse; margin: 20px 0; }
-        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
-        th { background-color: #f4f4f4; }
     </style>
 </head>
 <body>
 
     <a href="index.html" class="nav-back">&larr; Back to Home</a>
 
-    <h1>Homework 2: Cryptography, Ciphers, and Statistical Attacks</h1>
+    <h1>Homework 2: Interactive Cryptography Lab</h1>
     <p><strong>Course:</strong> Statistics for Cybersecurity | La Sapienza University of Rome</p>
 
-    <h2>1. Elliptic Curve Cryptography (secp256k1 Toy Scheme)</h2>
-    <p>In this section, we review the toy cryptographic scheme based on the secp256k1 elliptic curve equation over a finite field F_p:</p>
-    <p><code>y^2 = x^3 + 7 (mod p)</code></p>
-    <ul>
-        <li><strong>Key Generation:</strong> The private key <code>d</code> is a secret integer chosen from a small, bounded range. The public key <code>Q</code> is computed via scalar multiplication of the generator point <code>G</code>: <code>Q = d * G</code>.</li>
-        <li><strong>Encryption (ElGamal-style):</strong> To encrypt a message point <code>M</code>, we generate an ephemeral random integer <code>k</code>, compute <code>C1 = k * G</code> and <code>C2 = M + (k * Q)</code>. The ciphertext is the pair <code>(C1, C2)</code>.</li>
-        <li><strong>Decryption:</strong> We compute the shared secret <code>S = d * C1</code> and subtract it from <code>C2</code> to recover the message point: <code>M = C2 - S</code>.</li>
-    </ul>
+    <!-- SEZIONE INTERATTIVA: CIFRARIO DI CESARE -->
+    <div class="card">
+        <h2>Interactive Caesar Cipher Tool</h2>
+        <p>Test the Caesar cipher encryption and decryption live:</p>
+        
+        <label for="inputMsg">Plaintext / Ciphertext:</label><br>
+        <input type="text" id="inputMsg" value="CYBERSECURITY" style="width: 100%;"><br>
+        
+        <label for="shiftVal">Shift Key (1-25):</label><br>
+        <input type="number" id="shiftVal" value="3" min="1" max="25" style="width: 100px;"><br>
+        
+        <button onclick="runCaesar()">Run Encryption / Decryption</button>
 
-    <h2>2. The Caesar Cipher & Comparative Analysis</h2>
-    <p>To compare modern asymmetric primitives with classical cryptography, we implement the Caesar cipher to encrypt and decrypt the same message.</p>
+        <div class="output">
+            <div>Encrypted: <span id="resEnc">-</span></div>
+            <div>Decrypted: <span id="resDec">-</span></div>
+        </div>
+    </div>
 
-    <pre><code># Caesar Cipher Implementation in Python
-def caesar_encrypt(plaintext: str, shift: int) -> str:
-    ciphertext = []
-    for char in plaintext:
-        if char.isalpha():
-            base = ord('A') if char.isupper() else ord('a')
-            ciphertext.append(chr((ord(char) - base + shift) % 26 + base))
-        else:
-            ciphertext.append(char)
-    return "".join(ciphertext)
+    <!-- SEZIONE TEORICA / ECC -->
+    <div class="card">
+        <h2>1. Elliptic Curve Cryptography (secp256k1 Toy Scheme)</h2>
+        <p>Equation over finite field: <code>y^2 = x^3 + 7 (mod p)</code></p>
+        <ul>
+            <li><strong>Private Key (d):</strong> A secret integer chosen from a bounded range.</li>
+            <li><strong>Public Key (Q):</strong> Computed via scalar multiplication <code>Q = d * G</code>.</li>
+            <li><strong>Encryption/Decryption:</strong> Uses ElGamal-style point addition and shared secret subtraction.</li>
+        </ul>
+    </div>
 
-def caesar_decrypt(ciphertext: str, shift: int) -> str:
-    return caesar_encrypt(ciphertext, -shift)
+    <script>
+        function caesar(text, shift, decrypt = false) {
+            if (decrypt) shift = (26 - shift) % 26;
+            return text.split('').map(char => {
+                let code = char.charCodeAt(0);
+                if (code >= 65 && code <= 90) { // Maiuscole
+                    return String.fromCharCode(((code - 65 + shift) % 26) + 65);
+                } else if (code >= 97 && code <= 122) { // Minuscole
+                    return String.fromCharCode(((code - 97 + shift) % 26) + 97);
+                }
+                return char;
+            }).join('');
+        }
 
-# Example Usage
-msg = "CYBERSECURITY"
-shift_key = 3
-encrypted_msg = caesar_encrypt(msg, shift_key)
-decrypted_msg = caesar_decrypt(encrypted_msg, shift_key)
-print(f"Encrypted: {encrypted_msg}")
-print(f"Decrypted: {decrypted_msg}")</code></pre>
+        function runCaesar() {
+            let msg = document.getElementById('inputMsg').value;
+            let shift = parseInt(document.getElementById('shiftVal').value) || 0;
+            
+            let encrypted = caesar(msg, shift, false);
+            let decrypted = caesar(encrypted, shift, true);
+            
+            document.getElementById('resEnc').innerText = encrypted;
+            document.getElementById('resDec').innerText = decrypted;
+        }
 
-    <h3>Comparison: ECC vs. Caesar Cipher</h3>
-    <table>
-        <tr>
-            <th>Feature</th>
-            <th>Caesar Cipher</th>
-            <th>ECC (secp256k1 Toy Scheme)</th>
-        </tr>
-        <tr>
-            <td><strong>Type</strong></td>
-            <td>Symmetric Substitution Cipher</td>
-            <td>Asymmetric Public-Key Cryptosystem</td>
-        </tr>
-        <tr>
-            <td><strong>Key Space</strong></td>
-            <td>Extremely small (K = 26)</td>
-            <td>Large theoretically (2^256), restricted in toy scheme</td>
-        </tr>
-        <tr>
-            <td><strong>Procedures</strong></td>
-            <td>Modular shift arithmetic (mod 26)</td>
-            <td>Point addition and scalar multiplication over finite fields</td>
-        </tr>
-        <tr>
-            <td><strong>Statistical Properties</strong></td>
-            <td>Preserves frequency distribution (letters map deterministically).</td>
-            <td>Hides frequency properties via ephemeral key randomization.</td>
-        </tr>
-    </table>
-
-    <h2>3. Statistical Cryptanalysis of the Caesar Cipher</h2>
-    <p>Because the Caesar cipher preserves single-letter frequencies, we can automatically recover the key using Chi-Square (<code>chi^2</code>) statistical analysis against standard English letter frequencies.</p>
-
-    <pre><code>import string
-
-ENGLISH_FREQS = {
-    'A': 0.08167, 'B': 0.01492, 'C': 0.02782, 'D': 0.04253, 'E': 0.12702,
-    'F': 0.02228, 'G': 0.02015, 'H': 0.06094, 'I': 0.06966, 'J': 0.00153,
-    'K': 0.00772, 'L': 0.04025, 'M': 0.02406, 'N': 0.06749, 'O': 0.07507,
-    'P': 0.01929, 'Q': 0.00095, 'R': 0.05987, 'S': 0.06327, 'T': 0.09056,
-    'U': 0.02758, 'V': 0.00978, 'W': 0.02360, 'X': 0.00150, 'Y': 0.01974, 'Z': 0.00074
-}
-
-def break_caesar(ciphertext: str):
-    best_shift = 0
-    lowest_chi2 = float('inf')
-    clean_text = [c.upper() for c in ciphertext if c.isalpha()]
-    n = len(clean_text)
-    if n == 0: return 0, ciphertext
-
-    for shift in range(26):
-        decrypted = caesar_decrypt("".join(clean_text), shift)
-        chi2 = sum(((decrypted.count(char) - (ENGLISH_FREQS[char] * n)) ** 2) / (ENGLISH_FREQS[char] * n) for char in string.ascii_uppercase)
-        if chi2 < lowest_chi2:
-            lowest_chi2 = chi2
-            best_shift = shift
-
-    return best_shift, caesar_decrypt(ciphertext, best_shift)</code></pre>
-
-    <h2>4. Attacking the Restricted-Space ECC Toy Scheme</h2>
-    <p>In our toy scheme, the private key <code>d</code> is restricted to a small range to make experiments feasible. We can recover <code>d</code> via exhaustive search (brute-force discrete logarithm):</p>
-
-    <pre><code>def recover_private_key_toy_ecc(public_key, generator_point, max_range=1000000):
-    current_point = generator_point
-    for candidate_d in range(1, max_range + 1):
-        if current_point == public_key:
-            return candidate_d
-        current_point = add_elliptic_points(current_point, generator_point)
-    return None</code></pre>
-
-    <h3>Discussion & Security Implications</h3>
-    <ul>
-        <li><strong>Caesar Attack vs. ECC Toy Attack:</strong> The Caesar attack relies on <em>linguistic redundancy</em> and statistical distributions over a large corpus, whereas the restricted ECC attack exploits <em>computational feasibility</em> due to an artificially small key space.</li>
-        <li><strong>Why Full-Scale ECC is Secure:</strong> In a standard secp256k1 implementation, the private key space is 256 bits (approx. <code>10^77</code> possibilities), making exhaustive search computationally impossible due to the hardness of the Elliptic Curve Discrete Logarithm Problem (ECDLP).</li>
-        <li><strong>Toy Scheme Vulnerabilities:</strong> Weaknesses in toy schemes arise primarily from parameter constraints (restricted key space) and occasionally implementation flaws such as nonce reuse or lack of point validation.</li>
-    </ul>
+        // Esegui al caricamento
+        runCaesar();
+    </script>
 
 </body>
 </html>
