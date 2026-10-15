@@ -3,85 +3,124 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Homework 2 - Interactive & Statistics</title>
+    <title>Homework 2 - Statistics & Cybersecurity</title>
     <style>
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; max-width: 900px; margin: 40px auto; padding: 0 20px; line-height: 1.6; color: #333; background-color: #f4f6f9; }
-        h1, h2 { color: #0056b3; }
-        h1 { border-bottom: 2px solid #ddd; padding-bottom: 10px; }
-        .card { background: #fff; padding: 20px; margin-bottom: 25px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
-        input, select, button { padding: 10px; margin: 5px 0; font-size: 14px; border: 1px solid #ccc; border-radius: 4px; }
-        button { background-color: #0056b3; color: white; border: none; cursor: pointer; font-weight: bold; }
-        button:hover { background-color: #004085; }
-        .output { background: #e9ecef; padding: 12px; border-radius: 4px; margin-top: 10px; font-family: monospace; font-weight: bold; }
-        .nav-back { display: inline-block; margin-bottom: 20px; font-weight: bold; color: #0056b3; text-decoration: none; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; max-width: 900px; margin: 40px auto; padding: 0 20px; line-height: 1.6; color: #333; background-color: #fcfcfc; }
+        h1, h2, h3 { color: #0056b3; }
+        h1 { border-bottom: 2px solid #eaeaea; padding-bottom: 10px; }
+        h2 { margin-top: 40px; border-bottom: 1px solid #eaeaea; padding-bottom: 5px; }
+        pre { background: #2d2d2d; color: #f8f8f2; padding: 15px; border-radius: 6px; overflow-x: auto; font-family: Consolas, Monaco, monospace; font-size: 14px; }
+        code { font-family: Consolas, Monaco, monospace; background: #f0f0f0; padding: 2px 5px; border-radius: 4px; font-size: 13px; }
+        pre code { background: none; padding: 0; color: inherit; }
+        ul { margin-bottom: 20px; }
+        .nav-back { margin-bottom: 20px; display: inline-block; font-weight: bold; color: #0056b3; text-decoration: none; }
         .nav-back:hover { text-decoration: underline; }
+        .card { background: #fff; padding: 20px; margin-bottom: 25px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); border: 1px solid #eaeaea; }
+        table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
+        th { background-color: #f4f4f4; }
     </style>
 </head>
 <body>
 
     <a href="index.html" class="nav-back">&larr; Back to Home</a>
 
-    <h1>Homework 2: Interactive Cryptography Lab</h1>
+    <h1>Homework 2: Wallet Pipeline & Cryptographic Primitives</h1>
     <p><strong>Course:</strong> Statistics for Cybersecurity | La Sapienza University of Rome</p>
 
-    <!-- SEZIONE INTERATTIVA: CIFRARIO DI CESARE -->
     <div class="card">
-        <h2>Interactive Caesar Cipher Tool</h2>
-        <p>Test the Caesar cipher encryption and decryption live:</p>
-        
-        <label for="inputMsg">Plaintext / Ciphertext:</label><br>
-        <input type="text" id="inputMsg" value="CYBERSECURITY" style="width: 100%;"><br>
-        
-        <label for="shiftVal">Shift Key (1-25):</label><br>
-        <input type="number" id="shiftVal" value="3" min="1" max="25" style="width: 100px;"><br>
-        
-        <button onclick="runCaesar()">Run Encryption / Decryption</button>
-
-        <div class="output">
-            <div>Encrypted: <span id="resEnc">-</span></div>
-            <div>Decrypted: <span id="resDec">-</span></div>
-        </div>
-    </div>
-
-    <!-- SEZIONE TEORICA / ECC -->
-    <div class="card">
-        <h2>1. Elliptic Curve Cryptography (secp256k1 Toy Scheme)</h2>
-        <p>Equation over finite field: <code>y^2 = x^3 + 7 (mod p)</code></p>
+        <h2>1. The Ethereum Wallet Pipeline</h2>
+        <p>A simplified cryptographic pipeline from a mnemonic phrase to a secure Ethereum address follows these stages:</p>
+        <pre>
+Mnemonic 
+   ↓ (BIP-39)
+Seed 
+   ↓ (BIP-32 / BIP-44)
+Private Key 
+   ↓ (secp256k1)
+Public Key 
+   ↓ (Keccak-256)
+Ethereum Address 
+   ↓ (EIP-55)
+Checksummed Address
+        </pre>
         <ul>
-            <li><strong>Private Key (d):</strong> A secret integer chosen from a bounded range.</li>
-            <li><strong>Public Key (Q):</strong> Computed via scalar multiplication <code>Q = d * G</code>.</li>
-            <li><strong>Encryption/Decryption:</strong> Uses ElGamal-style point addition and shared secret subtraction.</li>
+            <li><strong>BIP-39:</strong> Mnemonic sentence and seed generation.</li>
+            <li><strong>BIP-32:</strong> Hierarchical Deterministic (HD) key derivation.</li>
+            <li><strong>BIP-44:</strong> Standard multi-account derivation paths.</li>
+            <li><strong>secp256k1:</strong> Elliptic-curve public-key cryptography.</li>
+            <li><strong>Keccak-256:</strong> Cryptographic hash function used for address generation.</li>
+            <li><strong>EIP-55:</strong> Mixed-case checksum encoding for error detection.</li>
         </ul>
     </div>
 
-    <script>
-        function caesar(text, shift, decrypt = false) {
-            if (decrypt) shift = (26 - shift) % 26;
-            return text.split('').map(char => {
-                let code = char.charCodeAt(0);
-                if (code >= 65 && code <= 90) { // Maiuscole
-                    return String.fromCharCode(((code - 65 + shift) % 26) + 65);
-                } else if (code >= 97 && code <= 122) { // Minuscole
-                    return String.fromCharCode(((code - 97 + shift) % 26) + 97);
-                }
-                return char;
-            }).join('');
-        }
+    <div class="card">
+        <h2>2. Conceptual Distinctions</h2>
+        <ul>
+            <li><strong>Key Generation vs. Derivation:</strong> Generation creates a root secret from randomness; derivation computes child keys deterministically from a parent seed.</li>
+            <li><strong>Public-Key Cryptography:</strong> Manages asymmetric key pairs ($k \to Q$) for signing and verification.</li>
+            <li><strong>Hashing:</strong> Maps arbitrary-length data to fixed-size outputs with collision resistance.</li>
+            <li><strong>Checksums & Encoding:</strong> Protects data against typos and formats binary data into human-readable strings.</li>
+        </ul>
+    </div>
 
-        function runCaesar() {
-            let msg = document.getElementById('inputMsg').value;
-            let shift = parseInt(document.getElementById('shiftVal').value) || 0;
-            
-            let encrypted = caesar(msg, shift, false);
-            let decrypted = caesar(encrypted, shift, true);
-            
-            document.getElementById('resEnc').innerText = encrypted;
-            document.getElementById('resDec').innerText = decrypted;
-        }
+    <div class="card">
+        <h2>3. Temporal and Historical Context</h2>
+        <table>
+            <tr>
+                <th>Standard / Primitive</th>
+                <th>Year</th>
+                <th>Description</th>
+            </tr>
+            <tr>
+                <td><strong>RSA</strong></td>
+                <td>1977</td>
+                <td>Pioneering public-key cryptosystem.</td>
+            </tr>
+            <tr>
+                <td><strong>SHA-2 / SHA-512</strong></td>
+                <td>2001</td>
+                <td>NIST standardized cryptographic hash family.</td>
+            </tr>
+            <tr>
+                <td><strong>BIP-32</strong></td>
+                <td>2012</td>
+                <td>Hierarchical Deterministic wallets.</td>
+            </tr>
+            <tr>
+                <td><strong>BIP-39</strong></td>
+                <td>2013</td>
+                <td>Mnemonic phrases for seed generation.</td>
+            </tr>
+            <tr>
+                <td><strong>BIP-44</strong></td>
+                <td>2014</td>
+                <td>Multi-account HD wallet standards.</td>
+            </tr>
+            <tr>
+                <td><strong>SHA-3 (Keccak)</strong></td>
+                <td>2015</td>
+                <td>NIST standard based on Keccak design.</td>
+            </tr>
+            <tr>
+                <td><strong>EIP-55</strong></td>
+                <td>2016</td>
+                <td>Mixed-case checksum encoding for Ethereum.</td>
+            </tr>
+        </table>
+        <p><strong>SHA-2 vs. Keccak/SHA-3:</strong> While historically related within hash function families, Ethereum uses <em>Keccak-256</em>, which differs from the finalized NIST SHA3-256 standard due to specific padding and domain-separation conventions.</p>
+    </div>
 
-        // Esegui al caricamento
-        runCaesar();
-    </script>
+    <div class="card">
+        <h2>4. Why Multiple Primitives?</h2>
+        <p>The Ethereum pipeline employs specialized primitives rather than a single monolithic algorithm because each layer solves a distinct security and usability challenge:</p>
+        <ul>
+            <li><strong>BIP-39/32/44:</strong> Specialized for deterministic structure and human-friendly backup management.</li>
+            <li><strong>secp256k1:</strong> Chosen for efficient digital signatures and compact public keys.</li>
+            <li><strong>Keccak-256:</strong> Provides fast, collision-resistant data reduction.</li>
+            <li><strong>EIP-55:</strong> Adds an integrated error-detection checksum to prevent costly user typos.</li>
+        </ul>
+    </div>
 
 </body>
 </html>
